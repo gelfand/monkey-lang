@@ -13,38 +13,59 @@ pub enum Op {
     Mod,
     /// Signed modulus x % y.
     Eq,
+    /// Rsh x >> y.
+    Rsh,
+    Lsh,
+    And,
+    Or,
+    Xor,
 }
 
-pub fn eval(op: Op, lhs: i32, rhs: i32) -> i32 {
-    match op {
-        Op::Add => lhs + rhs,
-        Op::Sub => lhs - rhs,
-        Op::Mul => lhs * rhs,
-        Op::Div => lhs / rhs,
-        Op::Mod => lhs % rhs,
-        Op::Eq => (lhs == rhs) as i32,
+impl Op {
+    // Create a new Op.
+    pub fn new(op: &str) -> Option<Op> {
+        match op {
+            "+" => Some(Op::Add),
+            "-" => Some(Op::Sub),
+            "*" => Some(Op::Mul),
+            "/" => Some(Op::Div),
+            "%" => Some(Op::Mod),
+            "==" => Some(Op::Eq),
+            ">>" => Some(Op::Rsh),
+            "<<" => Some(Op::Lsh),
+            "&" => Some(Op::And),
+            "|" => Some(Op::Or),
+            "^" => Some(Op::Xor),
+            _ => None,
+        }
     }
 }
 
-pub fn parse_op(op: &str) -> Op {
+
+pub fn eval(op: Op, x: i32, y: i32) -> i32 {
     match op {
-        "+" => Op::Add,
-        "-" => Op::Sub,
-        "*" => Op::Mul,
-        "/" => Op::Div,
-        "%" => Op::Mod,
-        "==" => Op::Eq,
-        _ => panic!("unknown op: {}", op),
+        Op::Add => x + y,
+        Op::Sub => x - y,
+        Op::Mul => x * y,
+        Op::Div => x / y,
+        Op::Mod => x % y,
+        Op::Eq => (x == y) as i32,
+        Op::Rsh => x >> y,
+        Op::Lsh => x << y,
+        Op::And => x&y,
+        Op::Or => x|y,
+        Op::Xor => x^y,
     }
 }
+
 
 pub fn parse_and_eval(expr: &str) -> i32 {
     let mut tokens = expr.split_whitespace();
-    let lhs = tokens.next().unwrap().parse::<i32>().unwrap();
-    let op = parse_op(tokens.next().unwrap());
-    let rhs = tokens.next().unwrap().parse::<i32>().unwrap();
+    let x = tokens.next().unwrap().parse::<i32>().unwrap();
+    let op = Op::new(tokens.next().unwrap()).unwrap();
+    let y = tokens.next().unwrap().parse::<i32>().unwrap();
 
-    eval(op, lhs, rhs)
+    eval(op, x, y)
 }
 
 fn main() {

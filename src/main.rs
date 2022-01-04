@@ -10,7 +10,7 @@ pub enum Op {
     Div,
     /// Mod x % y.
     Mod,
-    /// Signed modulus x % y.
+    /// Eq x == y.
     Eq,
     /// Rsh x >> y.
     Rsh,

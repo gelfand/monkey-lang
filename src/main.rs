@@ -1,5 +1,4 @@
-/// Op is a binary operation.
-#[derive(Debug)]
+/// Op is a enum that represents the different operations.
 pub enum Op {
     /// Add x + y.
     Add,
@@ -15,14 +14,19 @@ pub enum Op {
     Eq,
     /// Rsh x >> y.
     Rsh,
+    /// Lsh x << y.
     Lsh,
+    /// And x & y.
     And,
+    /// Or x | y.
     Or,
+    /// Xor x ^ y.
     Xor,
 }
 
+/// Op is a unary operation.
 impl Op {
-    // Create a new Op.
+    /// new returns a new unary operation.
     pub fn new(op: &str) -> Option<Op> {
         match op {
             "+" => Some(Op::Add),
@@ -41,31 +45,46 @@ impl Op {
     }
 }
 
-
-pub fn eval(op: Op, x: i32, y: i32) -> i32 {
-    match op {
-        Op::Add => x + y,
-        Op::Sub => x - y,
-        Op::Mul => x * y,
-        Op::Div => x / y,
-        Op::Mod => x % y,
-        Op::Eq => (x == y) as i32,
-        Op::Rsh => x >> y,
-        Op::Lsh => x << y,
-        Op::And => x&y,
-        Op::Or => x|y,
-        Op::Xor => x^y,
-    }
+/// Token is a lexical token.
+pub struct Token {
+    /// op is the token's operation.
+    pub op: Op,
+    /// lhs is the token's left-hand side.
+    pub lhs: i128,
+    /// rhs is the token's right-hand side.
+    pub rhs: Option<i128>,
 }
 
+impl Token {
+    /// new creates a new token.
+    pub fn new(input: &str) -> Token {
+        let mut tokens = input.split_whitespace();
+        let lhs = tokens.next().unwrap().parse::<i128>().unwrap();
+        let op = tokens.next().unwrap();
+        let rhs = tokens.next().map(|rhs| rhs.parse::<i128>().unwrap());
+        Token {
+            op: Op::new(op).unwrap(),
+            lhs,
+            rhs,
+        }
+    }
 
-pub fn parse_and_eval(expr: &str) -> i32 {
-    let mut tokens = expr.split_whitespace();
-    let x = tokens.next().unwrap().parse::<i32>().unwrap();
-    let op = Op::new(tokens.next().unwrap()).unwrap();
-    let y = tokens.next().unwrap().parse::<i32>().unwrap();
-
-    eval(op, x, y)
+    /// eval evaluates the Token.
+    pub fn eval(&self) -> i128 {
+        match self.op {
+            Op::Add => self.lhs + self.rhs.unwrap(),
+            Op::Sub => self.lhs - self.rhs.unwrap(),
+            Op::Mul => self.lhs * self.rhs.unwrap(),
+            Op::Div => self.lhs / self.rhs.unwrap(),
+            Op::Mod => self.lhs % self.rhs.unwrap(),
+            Op::Eq => (self.lhs == self.rhs.unwrap()) as i128,
+            Op::Rsh => self.lhs >> self.rhs.unwrap(),
+            Op::Lsh => self.lhs << self.rhs.unwrap(),
+            Op::And => self.lhs & self.rhs.unwrap(),
+            Op::Or => self.lhs | self.rhs.unwrap(),
+            Op::Xor => self.lhs ^ self.rhs.unwrap(),
+        }
+    }
 }
 
 fn main() {
@@ -73,5 +92,6 @@ fn main() {
     std::io::stdin().read_line(&mut input).unwrap();
     input.pop();
 
-    println!("{}", parse_and_eval(&input));
+    let token = Token::new(&input);
+    println!("{}", token.eval());
 }
